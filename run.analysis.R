@@ -78,22 +78,33 @@ get.data = function() {
 
    }
 
-
 transmogrify = function (data) {
-   statistics = NULL
-   stats = colnames(data)[3:81]
+   #--make a data set with rows for subjects and means for each measurement
+   #--toss the parentheses in column names
+   statistics  = NULL
+   stats       = colnames(data)[3:81]
+   activities  = sort(unique(data$activity.name))
+   
    for (subject in sort(unique(data$subject))) {
-      for (activity.name in sort(unique(data$activity.name))) {
-         for (stat in stats) {
-            m = mean(data[,stat][data$subject == subject & data$activity.name == activity.name])
-            row = data.frame(subject=subject, activitry.name = activity.name, stat = stat, mean.value = m)
-            statistics = rbind(statistics, row)
+      for (activity.name in activities) {
+         local = data[data$subject == subject & data$activity.name == activity.name,]
+         m = colMeans(local[3:81])
+         row = as.data.frame(t(m))
+         row$subject = subject
+         row$activity.name = activity.name
+         statistics = rbind(statistics, row)
          }
       }
-   }
+   names                   = colnames(statistics)
+   names                   = gsub("\\(\\)", "", names)
+   colnames(statistics)    = names
    statistics
 }
 #-------------------------------------------------------------------------------------------------------
+
+
+
+
 
 setwd("c://coursera//cleaning//data")
 
@@ -102,3 +113,4 @@ table(data$subject, data$activity.name)
 statistics = transmogrify(data)
 head(statistics)
 tail(statistics.tidy)
+write.csv (statistics, "tidy_version_means.csv", row.names = F)
