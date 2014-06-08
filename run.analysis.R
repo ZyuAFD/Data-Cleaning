@@ -106,7 +106,7 @@ transmogrify = function (data) {
 
 
 
-setwd("c://coursera//cleaning//data")
+
 
 data = get.data()
 table(data$subject, data$activity.name)
