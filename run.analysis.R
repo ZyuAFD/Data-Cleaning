@@ -11,18 +11,26 @@
 
 #Creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
 
+
+#1 WALKING
+#2 WALKING_UPSTAIRS
+#3 WALKING_DOWNSTAIRS
+#4 SITTING
+#5 STANDING
+#6 LAYING
+
 #-------------------------------------------------------------------------------------------------------
 
 get.data = function() {
-   features = read.table("features.txt", as.is = T)
-   colnames(features) = c("index", "name")
-   feature.names = features[,2]
-   feature.names[duplicated(feature.names)]
+   features             = read.table("features.txt", as.is = T)
+   colnames(features)   = c("index", "name")
+   feature.names        = features[,2]
+   feature.names        [duplicated(feature.names)]
    #--561 values, but only 477 unique!
    #---84 duplicates
    
-   list (feature.names = feature.names)
-   dim(labels)
+   list                 (feature.names = feature.names)
+   dim                  (labels)
    
    #---------------
    activity.numbers = read.table("train//y_train.txt", as.is = T)
@@ -71,10 +79,16 @@ get.data = function() {
    dim(activity)
    
    #--add activity name strings
-   activity.names = c("walking", "walking.up", "walking.down", "sitting", "standing", "laying")
-   activity$activity.name = activity.names[activity$activity]
    
-   activity
+   labels = read.table("activity_labels.txt")
+   labels
+   colnames(labels) = c("activity.number", "activity.name")
+   activity2 = merge(activity, labels, by = activity.number, all = T)
+   dim(activity2)
+   table(activity2$activity.number, activity2$activity.name)
+   head(activity2)
+   
+   activity2
 
    }
 
@@ -96,8 +110,11 @@ transmogrify = function (data) {
          }
       }
    names                   = colnames(statistics)
-   names                   = gsub("\\(\\)", "", names)
-   colnames(statistics)    = names
+   names                   = gsub("\\(\\)", "", names)   #--drop () in field names
+   colnames(statistics)    = names                       #--put subject and activity on left
+   ncols = dim(statistics)[2]
+   order = c(ncols-1, ncols, 1:(ncols-2))
+   statistics = statistics[,order]
    statistics
 }
 #-------------------------------------------------------------------------------------------------------
@@ -106,7 +123,7 @@ transmogrify = function (data) {
 
 
 
-
+setwd("c://coursera//cleaning//data")
 
 data = get.data()
 table(data$subject, data$activity.name)
